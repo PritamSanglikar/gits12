@@ -1,0 +1,224 @@
+using StudentDataMvc.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace StudentDataMvc.Controllers
+{
+    public class StudentsController : Controller
+    {
+        // GET: Students
+        public ActionResult Index()
+        {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            SqlCommand cmdInsert = new SqlCommand();
+            cmdInsert.Connection = cn;
+            cmdInsert.CommandText = "select * from Student_tbl";
+            List<Student> list = new List<Student>();
+            SqlDataReader dr = cmdInsert.ExecuteReader();
+            while (dr.Read())
+            {
+                list.Add(new Student { RollNo = (int)dr["Rollno"], Name = dr["Name"].ToString(), Marks = (decimal)dr["Marks"] });
+            }
+            dr.Close();
+            cn.Close();
+            return View(list);
+        }
+
+        // GET: Students/Details/5
+        public ActionResult Details(int id)
+        {
+
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            SqlCommand cmdInsert = new SqlCommand();
+            cmdInsert.Connection = cn;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+            cmdInsert.CommandText = "select * from Student_tbl where RollNo = @RollNo";
+            cmdInsert.Parameters.AddWithValue("@RollNo",id);
+            SqlDataReader dr = cmdInsert.ExecuteReader();
+            Student s1 = null;
+            if (dr.Read())
+            {
+                 s1 = new Student { RollNo = (int)dr["Rollno"], Name = dr["Name"].ToString(), Marks = (decimal)dr["Marks"] };
+            }
+            else
+            {
+                ViewBag.ErrorMesssage = "Not Found";
+            }
+            dr.Close();
+            cn.Close();
+            return View(s1);
+        }
+
+        // GET: Students/Create
+        public ActionResult Create()
+        {
+           
+            return View();
+        }
+
+        // POST: Students/Create
+        [HttpPost]
+        public ActionResult Create(Student s1 , string database, string dsadd)
+        {
+            if(database== "Add to database") {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            try
+                {
+
+                    SqlCommand cmdInsert = new SqlCommand();
+                    cmdInsert.Connection = cn;
+                    cmdInsert.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmdInsert.CommandText = "RegisterStudent";
+                    cmdInsert.Parameters.AddWithValue("@RollNo", s1.RollNo);
+                    cmdInsert.Parameters.AddWithValue("@Name", s1.Name);
+                    cmdInsert.Parameters.AddWithValue("@Marks", s1.Marks);
+                    cmdInsert.ExecuteNonQuery();
+                    Console.WriteLine(cmdInsert.CommandText);
+                    return RedirectToAction("Index");
+                    // TODO: Add insert logic here
+                    //return RedirectToAction("Index");
+                }
+
+                catch
+                {
+                    return View();
+                }
+                finally
+                {
+                    cn.Close();
+                }
+            }
+            else if(dsadd=="Add to object")
+            {
+                List<Student> bs = new List<Student>();
+                bs.Add( new Student { RollNo=s1.RollNo, Name =s1.Name, Marks =s1.Marks});
+                TempData["user"] = bs;
+                return RedirectToAction("Welcome");
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        public ActionResult Welcome()
+        {
+           
+            return View();
+        }
+        
+
+        // GET: Students/Edit/5
+        public ActionResult Edit(int id)
+        {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            SqlCommand cmdInsert = new SqlCommand();
+            cmdInsert.Connection = cn;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+            cmdInsert.CommandText = "select * from Student_tbl where RollNo = @RollNo";
+            cmdInsert.Parameters.AddWithValue("@RollNo", id);
+            SqlDataReader dr = cmdInsert.ExecuteReader();
+            Student s1 = null;
+            if (dr.Read())
+            {
+                s1 = new Student { RollNo = (int)dr["Rollno"], Name = dr["Name"].ToString(), Marks = (decimal)dr["Marks"] };
+            }
+            else
+            {
+                ViewBag.ErrorMesssage = "Not Found";
+            }
+            dr.Close();
+            cn.Close();
+            return View(s1);
+        }
+
+        // POST: Students/Edit/5
+        [HttpPost]
+        public ActionResult Edit(Student b1)
+        {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            try
+            {
+                SqlCommand cmdInsert = new SqlCommand();
+                cmdInsert.Connection = cn;
+                cmdInsert.CommandType = System.Data.CommandType.Text;
+                cmdInsert.CommandText = "update Student_tbl set RollNo=@RollNo,Name=@Name,Marks=@Marks where RollNo = @RollNo";
+                cmdInsert.Parameters.AddWithValue("@RollNo", b1.RollNo);
+                cmdInsert.Parameters.AddWithValue("@Name", b1.Name);
+                cmdInsert.Parameters.AddWithValue("@Marks", b1.Marks);
+                SqlDataReader dr = cmdInsert.ExecuteReader();
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
+        }
+
+        // GET: Students/Delete/5
+        public ActionResult Delete(int id)
+        {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            SqlCommand cmdInsert = new SqlCommand();
+            cmdInsert.Connection = cn;
+            cmdInsert.CommandType = System.Data.CommandType.Text;
+            cmdInsert.CommandText = "select * from Student_tbl where RollNo = @RollNo";
+            cmdInsert.Parameters.AddWithValue("@RollNo", id);
+            SqlDataReader dr = cmdInsert.ExecuteReader();
+            Student s1 = null;
+            if (dr.Read())
+            {
+                s1 = new Student { RollNo = (int)dr["Rollno"], Name = dr["Name"].ToString(), Marks = (decimal)dr["Marks"] };
+            }
+            else
+            {
+                ViewBag.ErrorMesssage = "Not Found";
+            }
+            dr.Close();
+            cn.Close();
+            return View(s1);
+        }
+
+        // POST: Students/Delete/5
+        [HttpPost]
+        public ActionResult Delete(int id, FormCollection collection)
+        {
+            SqlConnection cn = new SqlConnection();
+            cn.ConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=JKJan22;Integrated Security=True;";
+            cn.Open();
+            try
+            {
+                SqlCommand cmdInsert = new SqlCommand();
+                cmdInsert.Connection = cn;
+                cmdInsert.CommandType = System.Data.CommandType.Text;
+                cmdInsert.CommandText = "Delete from Student_tbl where RollNo = @RollNo";
+                cmdInsert.Parameters.AddWithValue("@RollNo", id);
+                cmdInsert.ExecuteNonQuery();
+
+                return RedirectToAction("Index");
+                cn.Close();
+            }
+            catch
+            {
+                return View();
+            }
+        }
+    }
+}
