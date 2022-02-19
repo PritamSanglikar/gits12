@@ -1,0 +1,45 @@
+@model IEnumerable<StudentDataMvc.Models.Student>
+
+@{
+    ViewBag.Title = "Welcome";
+}
+
+<h2>Welcome</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+           Roll Number
+        </th>
+        <th>
+           Name
+        </th>
+        <th>
+            Marks
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var s1 in TempData["user"]as List<StudentDataMvc.Models.Student>) {
+    <tr>
+        <td>
+           @s1.RollNo
+        </td>
+        <td>
+            @s1.Name
+        </td>
+        <td>
+            @s1.Marks
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+        </td>
+    </tr>
+}
+
+</table>
